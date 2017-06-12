@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -17,8 +18,10 @@ import me.jeeson.android.retrofitsoapsample.webservice.RetrofitGenerator;
 import me.jeeson.android.retrofitsoapsample.webservice.request.RequestBody;
 import me.jeeson.android.retrofitsoapsample.webservice.request.RequestEnvelope;
 import me.jeeson.android.retrofitsoapsample.webservice.request.RequestModel;
+import me.jeeson.android.retrofitsoapsample.webservice.request.User;
 import me.jeeson.android.retrofitsoapsample.webservice.response.ResponseEnvelope;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -32,12 +35,16 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private WeatherResponseAdapter adapter;
+    private List<String> listResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.rvElements.setLayoutManager(new LinearLayoutManager(this));
+        listResult =  new ArrayList<String>();
+        adapter = new WeatherResponseAdapter(listResult);
+        binding.rvElements.setAdapter(adapter);
 
     }
 
@@ -52,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
             hideKeyboard();
             getWeatherbyCityName();
         }
+    }
+
+    /**
+     * 获取Github用户排行列表
+     * @param view
+     */
+    public void sendRequest2(View view) {
+        getUsers();
     }
 
     /**
@@ -74,13 +89,45 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressbar.setVisibility(View.GONE);
                 ResponseEnvelope responseEnvelope = response.body();
                 if (responseEnvelope != null ) {
-                    List<String> weatherResult = responseEnvelope.body.getWeatherbyCityNameResponse.result;
-                    adapter = new WeatherResponseAdapter(weatherResult);
-                    binding.rvElements.setAdapter(adapter);
+                    List<String> list = responseEnvelope.body.getWeatherbyCityNameResponse.result;
+                    listResult.clear();
+                    listResult.addAll(list);
+                    adapter.notifyDataSetChanged();
                 }
             }
             @Override
             public void onFailure(Throwable t) {
+                Log.e("getWeatherbyCityName", t.getMessage());
+                binding.progressbar.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * 获取Github用户排行列表
+     * @return
+     */
+    public void getUsers() {
+        binding.progressbar.setVisibility(View.VISIBLE);
+        Call<List<User>> call = RetrofitGenerator.getGithubInterfaceApi().getUsers();
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Response<List<User>> response) {
+                binding.progressbar.setVisibility(View.GONE);
+                List<User> responseEnvelope = response.body();
+                if (responseEnvelope != null ) {
+                    List<String> list = new ArrayList<>(responseEnvelope.size());
+                    for(User user : responseEnvelope) {
+                        list.add(user.getLogin());
+                    }
+                    listResult.clear();
+                    listResult.addAll(list);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("getUsers", t.getMessage());
                 binding.progressbar.setVisibility(View.GONE);
             }
         });

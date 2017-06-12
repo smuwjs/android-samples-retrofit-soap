@@ -27,6 +27,14 @@
                 android:onClick="sendRequest"
                 android:text="@string/make_request" />
 
+            <Button
+                android:id="@+id/bt_make_request2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bt_make_request"
+                android:onClick="sendRequest2"
+                android:text="@string/make_request2" />
+
             <ProgressBar
                 android:id="@+id/progressbar"
                 android:layout_centerInParent="true"
@@ -38,7 +46,7 @@
                 android:id="@+id/rv_elements"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/bt_make_request" />
+                android:layout_below="@id/bt_make_request2" />
 
         </RelativeLayout>
     </FrameLayout>
