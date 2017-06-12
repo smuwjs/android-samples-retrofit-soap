@@ -1,4 +1,4 @@
-# RetrofitSoapSample
+# android-samples-retrofit-soap
  
 ## Description
 In this sample project, I have made an application that uses one SOAP service, with retrofit library.
